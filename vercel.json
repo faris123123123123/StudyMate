@@ -23,7 +23,7 @@
 
       "config": {
 
-        "distDir": "web/dist"
+        "distDir": "dist"
 
       }
 
