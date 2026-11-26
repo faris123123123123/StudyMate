@@ -8,7 +8,10 @@ import { useSettings } from '../lib/settings';
 import type { AppNotification, Reminder } from '../lib/types';
 
 const ICON: Record<string, IconName> = { schedule_start: 'calendar', deadline_near: 'clock', study_reminder: 'class', status_change: 'tasks' };
-export const platformOf = () => ((window as any).Capacitor?.getPlatform?.() as string | undefined) ?? ('__TAURI_INTERNALS__' in window ? 'desktop' : 'web');
+export const platformOf = () => {
+  const native = (window as Window & { Capacitor?: { getPlatform?: () => string } }).Capacitor?.getPlatform?.();
+  return native ?? ('__TAURI_INTERNALS__' in window ? 'desktop' : 'web');
+};
 
 export async function enablePush(): Promise<string> {
   const p = platformOf();

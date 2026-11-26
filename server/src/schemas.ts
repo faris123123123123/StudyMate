@@ -112,7 +112,7 @@ export const reminderPatch = z
 export const push = z.object({
   platform: z.enum(['web', 'android', 'ios', 'desktop']),
   endpoint: z.string().min(10),
-  subscription_data: z.record(z.any()),
+  subscription_data: z.record(z.string(), z.unknown()),
   device_name: text(150),
 });
 

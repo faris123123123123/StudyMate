@@ -25,7 +25,7 @@ export default function Assignments() {
   if (view === 'overdue') { query.status_not = 'completed'; query.to = new Date().toISOString(); }
   if (view === 'completed') query.status = 'completed';
   const list = useInfinite<Assignment>('assignments', '/assignments', query);
-  const update = useMut(({ id, ...b }: { id: string } & object) => api(`/assignments/${id}`, { method: 'PUT', body: b }));
+  const update = useMut(({ id, ...b }: { id: string } & Partial<Assignment>) => api(`/assignments/${id}`, { method: 'PUT', body: b }));
   const remove = useMut((id: string) => api(`/assignments/${id}`, { method: 'DELETE' }), 'Tugas dihapus');
   const subj = (id: string | null) => subjects.data?.find((s) => s.id === id);
   const isOverdue = (a: Assignment) => a.status !== 'completed' && !!a.due_at && new Date(a.due_at) < new Date();
@@ -63,7 +63,7 @@ export default function Assignments() {
                     {a.description && <p className="mt-1 text-sm text-muted">{a.description}</p>}
                   </div>
                   <div className="flex flex-col items-end sm:flex-row">
-                    <select className="px-in !w-auto text-sm" aria-label="Status" value={a.status} onChange={(e) => update.mutate({ id: a.id, status: e.target.value })}>{Object.entries(STAT).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
+                    <select className="px-in !w-auto text-sm" aria-label="Status" value={a.status} onChange={(e) => update.mutate({ id: a.id, status: e.target.value as TaskStatus })}>{Object.entries(STAT).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select>
                     <Button sm variant="alt" icon="edit" aria-label="Ubah" onClick={() => setEdit(a)} />
                     <Button sm variant="danger" icon="trash" aria-label="Hapus" onClick={() => setDel(a)} />
                   </div>

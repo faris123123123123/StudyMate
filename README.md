@@ -2,7 +2,7 @@
 
 Personal learning companion dengan UI pixel art. React + Vite + TypeScript + Tailwind, Node/Express, Supabase (Postgres, Auth, Storage), PWA, Tauri (desktop), Capacitor (mobile). Tanpa AI (sesuai PRD v2.0).
 
-> **Status:** kode ditulis lengkap tetapi **belum pernah dikompilasi atau dijalankan** (lingkungan pembuatnya tanpa akses internet untuk `npm install`). Jalankan `npm install && npm run typecheck` dulu dan perbaiki bila ada galat tipe kecil.
+> **Status:** jalankan `npm install && npm run typecheck && npm run build` untuk validasi lokal. Deployment serverless tidak menjalankan `node-cron`; gunakan scheduler eksternal untuk memanggil pemrosesan reminder secara berkala.
 
 ## Mulai cepat
 

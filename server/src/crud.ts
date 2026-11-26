@@ -77,7 +77,9 @@ export function crud(o: Opts) {
       const prev = check(await req.db.from(o.table).select('*').eq('id', id).maybeSingle());
       if (!prev) throw new HttpError(404, 'Data tidak ditemukan.');
       let body = updateSchema.parse(req.body);
-      const msg = o.validate?.({ ...prev, ...body }, id);
+      const prevObj = typeof prev === 'object' && prev !== null ? prev as Record<string, unknown> : {};
+      const bodyObj = typeof body === 'object' && body !== null ? body as Record<string, unknown> : {};
+      const msg = o.validate?.({ ...prevObj, ...bodyObj }, id);
       if (msg) throw new HttpError(400, msg);
       if (o.before) body = (await o.before(req, body, 'update', prev)) ?? body;
       // Deteksi konflik (SRS 12.2): jika klien mengirim updated_at yang dilihatnya, tolak bila sudah berubah.

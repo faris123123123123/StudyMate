@@ -47,7 +47,7 @@ profileRoutes.post('/avatar', upload.single('file'), wrap(async (req, res) => {
   const ext = f && AVATAR_MIME[f.mimetype];
   if (!f || !ext) throw new HttpError(400, 'Foto profil harus berupa PNG atau JPG (maks. 2 MB).');
   const path = `avatars/${req.user.id}/avatar-${Date.now()}.${ext}`;
-  const up = await req.db.storage.from(env.STORAGE_BUCKET).upload(path, f.buffer, { contentType: f.mimetype });
+  const up = await req.db.storage.from(env.STORAGE_BUCKET).upload(path, f.buffer, { contentType: f.mimetype, upsert: false });
   if (up.error) throw new HttpError(502, 'Foto gagal diunggah. Coba lagi.');
   const prev = check(await req.db.from('profiles').select('avatar_url').eq('id', req.user.id).single()) as any;
   check(await req.db.from('profiles').update({ avatar_url: path }).eq('id', req.user.id).select().single());
@@ -84,9 +84,10 @@ export const pushRoutes = Router();
 pushRoutes.get('/vapid-public-key', wrap(async (_req, res) => res.json({ key: vapidPublicKey() })));
 pushRoutes.post('/', wrap(async (req, res) => {
   const body = S.push.parse(req.body);
+  await req.db.from('push_subscriptions').delete().eq('endpoint', body.endpoint);
   const row = check(
     await req.db.from('push_subscriptions')
-      .upsert({ ...body, user_id: req.user.id, last_seen_at: new Date().toISOString() }, { onConflict: 'endpoint' })
+      .insert({ ...body, user_id: req.user.id, last_seen_at: new Date().toISOString() })
       .select().single(),
   );
   res.status(201).json(row);

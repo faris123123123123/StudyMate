@@ -27,11 +27,14 @@ export async function processDue() {
     try {
       const { data: prefs } = await admin.from('user_settings').select('timezone,notifications_enabled').eq('user_id', r.user_id).maybeSingle();
       const n = await describe(r, prefs?.timezone ?? 'Asia/Jakarta');
-      await admin.from('notifications').insert({ user_id: r.user_id, title: n.title, message: n.message, type: n.type });
+      const { error: notificationError } = await admin.from('notifications').insert({ user_id: r.user_id, title: n.title, message: n.message, type: n.type });
+      if (notificationError) throw notificationError;
       if (prefs?.notifications_enabled !== false) await pushTo(r.user_id, { title: n.title, message: n.message, url: n.url });
     } catch (e) {
       console.error('reminder gagal', r.id, e);
-      await admin.from('reminders').update({ status: 'failed' }).eq('id', r.id);
+      // Keep the reminder retryable instead of recording it as sent when
+      // notification persistence failed.
+      await admin.from('reminders').update({ status: 'pending', sent_at: null }).eq('id', r.id).eq('status', 'sent');
     }
   }
 }

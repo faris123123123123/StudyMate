@@ -20,7 +20,13 @@ app.use('/api', api);
 app.use((_req, res) => res.status(404).json({ error: 'Endpoint tidak ditemukan.' }));
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
-  console.log(`StudyMate API di http://localhost:${env.PORT}`);
-  if (env.ENABLE_WORKER === 'true') startWorker();
-});
+const isDirectRun = process.argv[1]?.endsWith('/dist/index.js') || process.argv[1]?.endsWith('/src/index.ts');
+
+if (isDirectRun) {
+  app.listen(env.PORT, () => {
+    console.log(`StudyMate API di http://localhost:${env.PORT}`);
+    if (env.ENABLE_WORKER === 'true') startWorker();
+  });
+}
+
+export default app;

@@ -47,7 +47,7 @@ materialRoutes.post('/', upload.single('file'), wrap(async (req, res) => {
 
   const up = await req.db.storage.from(env.STORAGE_BUCKET).upload(storage_path, f.buffer, { contentType: f.mimetype, upsert: false });
   if (up.error) {
-    await req.db.from('study_materials').update({ processing_status: 'failed' }).eq('id', id);
+    await req.db.from('study_materials').delete().eq('id', id);
     throw new HttpError(502, 'Upload gagal. File belum tersimpan, silakan coba lagi.');
   }
   const ready = check(await req.db.from('study_materials').update({ processing_status: 'ready' }).eq('id', id).select().single());
